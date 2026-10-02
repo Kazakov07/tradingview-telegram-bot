@@ -28,19 +28,29 @@ def webhook():
 
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
-    response = requests.post(
-        url,
-        json={
-            "chat_id": CHAT_ID,
-            "text": message
-        },
-        timeout=10
-    )
+    try:
+        response = requests.post(
+            url,
+            json={
+                "chat_id": CHAT_ID,
+                "text": message
+            },
+            timeout=10
+        )
 
-    if response.ok:
-        return jsonify({"status": "ok"}), 200
+        if response.ok:
+            return jsonify({"status": "ok"}), 200
 
-    return jsonify({"error": response.text}), 500
+        return jsonify({
+            "error": "Telegram API error",
+            "details": response.text
+        }), 500
+
+    except requests.RequestException as e:
+        return jsonify({
+            "error": "Telegram request failed",
+            "details": str(e)
+        }), 500
 
 
 if __name__ == "__main__":
